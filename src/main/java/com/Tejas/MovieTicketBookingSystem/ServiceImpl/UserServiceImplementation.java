@@ -7,6 +7,7 @@ import com.Tejas.MovieTicketBookingSystem.DTOs.UserUpdateRequest;
 import com.Tejas.MovieTicketBookingSystem.Entity.UserEntity;
 import com.Tejas.MovieTicketBookingSystem.Repository.UserRepository;
 import com.Tejas.MovieTicketBookingSystem.Service.UserService;
+import com.Tejas.MovieTicketBookingSystem.Util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -30,7 +31,7 @@ public class UserServiceImplementation implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final AuthenticationManager authenticationManager;
-    //private final JwtUtil jwtUtil;
+    private final JwtUtil jwtUtil;
     private final Logger logger = LoggerFactory.getLogger(UserServiceImplementation.class);
 
     @Override
@@ -71,10 +72,10 @@ public class UserServiceImplementation implements UserService {
     public Map<String, Object> authenticateAndGenerateToken(AuthDto authDto) {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authDto.getEmail(), authDto.getPassword()));
-            //String token = jwtUtil.generateToken(authDto.getEmail);
+            String token = jwtUtil.generateToken(authDto.getEmail());
             logger.info("Logging user with email id: {}"+authDto.getEmail());
             return Map.of(
-//                    "Token" , token,
+                    "Token" , token,
                     "User" , getPublicProfile(authDto.getEmail())
             );
         }catch (Exception e){
