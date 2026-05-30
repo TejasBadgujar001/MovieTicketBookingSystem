@@ -5,6 +5,8 @@ import com.Tejas.MovieTicketBookingSystem.DTOs.UserRequest;
 import com.Tejas.MovieTicketBookingSystem.DTOs.UserResponse;
 import com.Tejas.MovieTicketBookingSystem.DTOs.UserUpdateRequest;
 import com.Tejas.MovieTicketBookingSystem.Entity.UserEntity;
+import com.Tejas.MovieTicketBookingSystem.Exceptions.UnauthorizedException;
+import com.Tejas.MovieTicketBookingSystem.Exceptions.UserNotFoundException;
 import com.Tejas.MovieTicketBookingSystem.Repository.UserRepository;
 import com.Tejas.MovieTicketBookingSystem.Service.UserService;
 import com.Tejas.MovieTicketBookingSystem.Util.JwtUtil;
@@ -54,13 +56,17 @@ public class UserServiceImplementation implements UserService {
         }
         if(id != null){
             UserEntity userEntity= userRepository.findById(id)
-                    .orElseThrow(()->new RuntimeException("User not exist for id: "+id));
+                    .orElseThrow(()-> {
+                        return new UserNotFoundException("User not exist for id: "+id);
+                    });
             logger.info("fetching user with id: {}", id);
             return List.of(mapToResponse(userEntity));
         }
         if(email != null){
             UserEntity userEntity= userRepository.findByEmail(email)
-                    .orElseThrow(()->new RuntimeException("User not exist for email: "+email));
+                    .orElseThrow(()->{
+                        return new UserNotFoundException("User not exist for email: "+email);
+                    });
             logger.info("fetching user with email: {}", email);
             return List.of(mapToResponse(userEntity));
         }
@@ -73,20 +79,21 @@ public class UserServiceImplementation implements UserService {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authDto.getEmail(), authDto.getPassword()));
             String token = jwtUtil.generateToken(authDto.getEmail());
-            logger.info("Logging user with email id: {}"+authDto.getEmail());
+            logger.info("Logging user with email id: {} "+authDto.getEmail());
             return Map.of(
                     "Token" , token,
                     "User" , getPublicProfile(authDto.getEmail())
             );
         }catch (Exception e){
-            logger.warn("Unable to authenticate user.");
-            throw new RuntimeException(e.getMessage());
+            logger.warn("Authentication failed for user :{}.",authDto.getEmail());
+            throw new UnauthorizedException("Invalid email or password");
         }
     }
 
     @Override
     public UserResponse getPublicProfile(String email) {
-        UserEntity entity = userRepository.findByEmail(email).orElseThrow(()-> new RuntimeException("User not exist for email: "+email));
+        UserEntity entity = userRepository.findByEmail(email)
+                .orElseThrow(()-> new UserNotFoundException("User not exist for email: "+email));
         return mapToResponse(entity);
     }
 
@@ -94,7 +101,8 @@ public class UserServiceImplementation implements UserService {
     public UserEntity getLoggedInUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
-        return userRepository.findByEmail(email).orElseThrow(()-> new RuntimeException("User not exist for email: "+email));
+        return userRepository.findByEmail(email)
+                .orElseThrow(()-> new UserNotFoundException("User not exist for email: "+email));
     }
 
     @Override
@@ -103,7 +111,7 @@ public class UserServiceImplementation implements UserService {
         UserEntity existingUser = userRepository.findById(id)
                 .orElseThrow(()->{
                     logger.warn("User not exist for id: {}",id);
-                    return new RuntimeException("No User exist for id: "+id);
+                    return new UserNotFoundException("No User exist for id: "+id);
                 });
         UserEntity entity = getLoggedInUser();
         if(entity.getId().equals(id)){
@@ -118,7 +126,7 @@ public class UserServiceImplementation implements UserService {
             return mapToResponse(entity);
         }else{
             logger.warn("Unauthorized profile trying to update user with id: {}", id);
-            throw new RuntimeException("Unauthorized profile try to edit user profile with id: "+id);
+            throw new UnauthorizedException("Unauthorized profile try to edit user profile with id: "+id);
         }
     }
 
@@ -128,7 +136,7 @@ public class UserServiceImplementation implements UserService {
         UserEntity existingUser = userRepository.findById(id)
                 .orElseThrow(()->{
                     logger.warn("User not exist for id: {}",id);
-                    return new RuntimeException("No User exist for id: "+id);
+                    return new UserNotFoundException("No User exist for id: "+id);
                 });
         UserEntity userEntity = getLoggedInUser();
         if(userEntity.getId().equals(id)){
@@ -137,7 +145,7 @@ public class UserServiceImplementation implements UserService {
             return "User deleted successfully.";
         }else {
             logger.warn("Unauthorized profile trying to delete user with id: {}", id);
-            throw new RuntimeException("Unauthorized profile try to edit user profile with id: "+id);
+            throw new UnauthorizedException("Unauthorized profile try to edit user profile with id: "+id);
         }
     }
 

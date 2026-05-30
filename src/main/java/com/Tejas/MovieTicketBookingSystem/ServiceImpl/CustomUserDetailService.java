@@ -1,6 +1,7 @@
 package com.Tejas.MovieTicketBookingSystem.ServiceImpl;
 
 import com.Tejas.MovieTicketBookingSystem.Entity.UserEntity;
+import com.Tejas.MovieTicketBookingSystem.Exceptions.UserNotFoundException;
 import com.Tejas.MovieTicketBookingSystem.Repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -24,7 +25,7 @@ public class CustomUserDetailService implements UserDetailsService {
        UserEntity userEntity = userRepository.findByEmail(username)
                .orElseThrow(()->{
                    logger.warn("User not exist for username: {}",username);
-                   return new RuntimeException("User not exist with username: "+username);
+                   return new UserNotFoundException("User not exist with username: "+username);
                });
        return User.builder()
                .username(userEntity.getEmail())

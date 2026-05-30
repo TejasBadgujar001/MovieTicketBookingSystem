@@ -81,4 +81,19 @@ public class GlobalExceptionHandler {
                 .build();
         return new ResponseEntity<>(response,HttpStatus.UNAUTHORIZED);
     }
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ExceptionResponse> handleGlobalException(Exception ex){
+        logger.error("Unexpected error occurred", ex);
+        ExceptionResponse response = ExceptionResponse.builder()
+                .timeStamp(LocalDateTime.now())
+                .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .error(HttpStatus.INTERNAL_SERVER_ERROR.name())
+                .message(ex.getMessage())
+                .build();
+
+        return new ResponseEntity<>(
+                response,
+                HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
 }
