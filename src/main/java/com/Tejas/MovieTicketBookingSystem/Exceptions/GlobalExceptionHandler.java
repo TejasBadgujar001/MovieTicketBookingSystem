@@ -81,6 +81,19 @@ public class GlobalExceptionHandler {
                 .build();
         return new ResponseEntity<>(response,HttpStatus.UNAUTHORIZED);
     }
+
+    @ExceptionHandler(InvalidSearchParameterException.class)
+    public ResponseEntity<ExceptionResponse> handleInvalidSearchParameterException(InvalidSearchParameterException exception){
+        logger.warn("Invalid Search Parameter");
+        ExceptionResponse response = ExceptionResponse.builder()
+                .timeStamp(LocalDateTime.now())
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .message(HttpStatus.BAD_REQUEST.name())
+                .message(exception.getMessage())
+                .build();
+        return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ExceptionResponse> handleGlobalException(Exception ex){
         logger.error("Unexpected error occurred", ex);
