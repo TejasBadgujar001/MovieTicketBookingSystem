@@ -5,6 +5,7 @@ import com.Tejas.MovieTicketBookingSystem.DTOs.UserRequest;
 import com.Tejas.MovieTicketBookingSystem.DTOs.UserResponse;
 import com.Tejas.MovieTicketBookingSystem.DTOs.UserUpdateRequest;
 import com.Tejas.MovieTicketBookingSystem.Entity.UserEntity;
+import com.Tejas.MovieTicketBookingSystem.Exceptions.InvalidSearchParameterException;
 import com.Tejas.MovieTicketBookingSystem.Exceptions.UnauthorizedException;
 import com.Tejas.MovieTicketBookingSystem.Exceptions.UserNotFoundException;
 import com.Tejas.MovieTicketBookingSystem.Repository.UserRepository;
@@ -71,7 +72,7 @@ public class UserServiceImplementation implements UserService {
             return List.of(mapToResponse(userEntity));
         }
         logger.warn("Provide valid search parameter for fetching user");
-        throw new RuntimeException("Provide valid search parameter");
+        throw new InvalidSearchParameterException("Provide valid search parameter");
     }
 
     @Override
