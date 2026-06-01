@@ -43,9 +43,6 @@ public class TheaterServiceImplementation implements TheaterService {
     @Override
     public TheaterResponse createTheaterProfile(TheaterRequest request) {
         UserEntity user = getLoggedInUser();
-        if(user.getRole() != Role.THEATER_OWNER){
-            throw new UnauthorizedException("Only theater owners can create theater profiles");
-        }
         TheaterEntity theaterEntity = mapToEntity(request);
         theaterEntity = theaterRepository.save(theaterEntity);
         logger.info("Theater profile is created with name: {} by {}",request.getName(),getLoggedInUser().getName());

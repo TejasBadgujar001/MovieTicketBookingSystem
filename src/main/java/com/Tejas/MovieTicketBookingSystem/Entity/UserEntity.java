@@ -32,4 +32,7 @@ public class UserEntity {
 
     @OneToMany(mappedBy = "userEntity", cascade = CascadeType.ALL)
     private List<TheaterEntity> theaterEntityList;
+
+    @OneToMany(mappedBy = "userEntity", cascade = CascadeType.ALL)
+    private List<MovieEntity> movieEntity;
 }
