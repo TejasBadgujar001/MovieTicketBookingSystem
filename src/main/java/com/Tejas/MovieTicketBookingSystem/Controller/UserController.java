@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -37,6 +38,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(loginResult);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/search")
     public ResponseEntity<List<UserResponse>> searchUser(
             @RequestParam(required = false)String name,
@@ -49,12 +51,14 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(userResponseList);
     }
 
-    @PatchMapping("/update/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN,'THEATER_OWNER','CUSTOMER')")
+    @PatchMapping("/{id}")
     public ResponseEntity<UserResponse> editUserProfile(@PathVariable Long id,@RequestBody UserUpdateRequest request){
         UserResponse userResponse = userService.updateUserProfile(id,request);
         return ResponseEntity.status(HttpStatus.OK).body(userResponse);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN,'THEATER_OWNER','CUSTOMER')")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> removeUserProfile(@PathVariable Long id){
         String message = userService.deleteUseProfile(id);

@@ -115,13 +115,6 @@ public class MovieServiceImplementation implements MovieService {
         }
     }
 
-    @Override
-    public List<MovieResponse> getMoviePostedByUser(int page, int size) {
-        UserEntity  userEntity = getLoggedInUser();
-        Pageable pageable = PageRequest.of(page,size);
-        Page<MovieEntity> page1 = movieRepository.findByUserEntityId(userEntity.getId(),pageable);
-        return page1.stream().map(this::mapToResponse).collect(Collectors.toList());
-    }
 
     @Override
     public MovieResponse mapToResponse(MovieEntity entity) {

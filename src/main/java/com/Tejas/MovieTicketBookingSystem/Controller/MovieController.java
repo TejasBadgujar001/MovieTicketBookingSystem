@@ -38,7 +38,6 @@ public class MovieController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN','THEATER_OWNER','CUSTOMER')")
     public ResponseEntity<List<MovieResponse>> fetchAllMovies(
             @RequestParam(required = false, defaultValue = "0")int page,
             @RequestParam(required = false, defaultValue = "5")int size
@@ -65,14 +64,5 @@ public class MovieController {
     public ResponseEntity<String> deleteMovieProfile(@PathVariable Long id){
         return new ResponseEntity<>(movieService.deleteMovie(id),HttpStatus.OK);
     }
-    @GetMapping("/my-movies")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<MovieResponse>> getMyMovies(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size
-    ){
-        return ResponseEntity.ok(
-                movieService.getMoviePostedByUser(page, size)
-        );
-    }
+
 }

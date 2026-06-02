@@ -21,8 +21,6 @@ public interface MovieService {
 
     public String deleteMovie(Long id);
 
-    public List<MovieResponse> getMoviePostedByUser(int page, int size);
-
     public MovieResponse mapToResponse(MovieEntity entity);
 
     public MovieEntity mapToEntity(MovieRequest request);

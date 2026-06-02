@@ -16,5 +16,5 @@ public interface TheaterRepository extends JpaRepository<TheaterEntity,Long> {
 
     Page<TheaterEntity> findByStateContainingIgnoreCase(String state, Pageable pageable);
 
-    List<TheaterEntity> findByUserEntityId(Long id);
+    Page<TheaterEntity> findByUserEntityId(Long id,Pageable pageable);
 }

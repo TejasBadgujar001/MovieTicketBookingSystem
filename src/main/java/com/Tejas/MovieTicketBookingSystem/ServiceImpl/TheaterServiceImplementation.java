@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import javax.management.BadAttributeValueExpException;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @AllArgsConstructor
@@ -80,23 +81,21 @@ public class TheaterServiceImplementation implements TheaterService {
     public List<TheaterResponse> searchTheater(String name, String state, String city, Long id, int page, int size) {
         UserEntity userEntity = getLoggedInUser();
         Pageable pageable = PageRequest.of(page,size);
+        Page<TheaterEntity> page1;
         if(name != null){
             logger.info("Fetching Theater of name: {}", name);
-            Page<TheaterEntity> page1 = theaterRepository.findByNameContainingIgnoreCase(name,pageable);
-            return page1.stream().map(this::mapToResponse).collect(Collectors.toList());
+             page1 = theaterRepository.findByNameContainingIgnoreCase(name,pageable);
         }
         else if(state != null){
             logger.info("Fetching Theater in state: {}", state);
-            Page<TheaterEntity> page1 = theaterRepository.findByStateContainingIgnoreCase(state,pageable);
-            return page1.stream().map(this::mapToResponse).collect(Collectors.toList());
+             page1 = theaterRepository.findByStateContainingIgnoreCase(state,pageable);
         }
         else if(city != null){
             logger.info("Fetching Theater in city: {}", city);
-            Page<TheaterEntity> page1 = theaterRepository.findByCityContainingIgnoreCase(city,pageable);
-            return page1.stream().map(this::mapToResponse).collect(Collectors.toList());
+             page1 = theaterRepository.findByCityContainingIgnoreCase(city,pageable);
         }
         else if(id != null){
-            if(userEntity.getRole().equals(Role.ADMIN) || userEntity.getRole().equals(Role.THEATER_OWNER)){
+            if(userEntity.getRole().equals(Role.ADMIN)){
                 TheaterEntity theater = theaterRepository.findById(id)
                         .orElseThrow(()->{
                             logger.info("No theatre exist with id: {}", id);
@@ -111,6 +110,11 @@ public class TheaterServiceImplementation implements TheaterService {
             logger.warn("Provide valid search parameter for fetching user");
             throw new InvalidSearchParameterException("Provide valid search parameter");
         }
+        Stream<TheaterEntity> stream = page1.stream();
+        stream = stream.filter(theater -> theater.getStatus() == TheaterStatus.ACTIVE);
+        return stream
+                .map(this::mapToResponse)
+                .toList();
     }
 
     @Override
@@ -119,6 +123,14 @@ public class TheaterServiceImplementation implements TheaterService {
         Pageable pageable = (Pageable) PageRequest.of(page,size);
         Page<TheaterEntity> page1 = theaterRepository.findAll(pageable);
         return page1.stream().map(this::mapToResponse).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TheaterResponse> fetchMyTheaters(int page, int size){
+        UserEntity userEntity = getLoggedInUser();
+        Pageable pageable = PageRequest.of(page,size);
+        Page<TheaterEntity> entities = theaterRepository.findByUserEntityId(userEntity.getId(),pageable);
+        return entities.stream().map(this::mapToResponse).toList();
     }
 
     @Override

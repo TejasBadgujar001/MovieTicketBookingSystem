@@ -33,7 +33,7 @@ public class TheaterController {
     }
 
     @PreAuthorize("hasAnyRole('THEATER_OWNER','ADMIN','CUSTOMER')")
-    @GetMapping()
+    @GetMapping("/search")
     public ResponseEntity<List<TheaterResponse>> searchTheaterProfile(
             @RequestParam(required = false)String name,
             @RequestParam(required = false)String state,
@@ -56,7 +56,7 @@ public class TheaterController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("/update/status/{id}")
+    @PutMapping("/update/{id}/status")
     public ResponseEntity<TheaterResponse> updateTheaterProfileStatus(
             @PathVariable Long id,
             @RequestParam TheaterStatus status
@@ -71,6 +71,16 @@ public class TheaterController {
             @Valid @RequestBody TheaterUpdateRequest request
     ){
         return ResponseEntity.ok(theaterService.updateTheaterProfile(id,request));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/myTheater")
+    public ResponseEntity<List<TheaterResponse>> getMyTheater(
+            @RequestParam(defaultValue = "0")int page,
+            @RequestParam(defaultValue = "5")int size
+    ){
+        List<TheaterResponse> responses= theaterService.fetchMyTheaters(page,size);
+        return ResponseEntity.ok(responses);
     }
 
     @PreAuthorize("hasRole('ADMIN')")

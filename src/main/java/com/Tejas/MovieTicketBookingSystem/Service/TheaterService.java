@@ -19,6 +19,8 @@ public interface TheaterService {
 
     public TheaterResponse updateTheaterStatus(Long id , TheaterStatus status);
 
+    public List<TheaterResponse> fetchMyTheaters(int page,int size);
+
     public String deleteTheaterProfile(Long id);
 
     public TheaterEntity mapToEntity(TheaterRequest request);

@@ -55,7 +55,7 @@ public class UserServiceImplementation implements UserService {
                     .map(this::mapToResponse)
                     .toList();
         }
-        if(id != null){
+        else if(id != null){
             UserEntity userEntity= userRepository.findById(id)
                     .orElseThrow(()-> {
                         return new UserNotFoundException("User not exist for id: "+id);
@@ -63,16 +63,17 @@ public class UserServiceImplementation implements UserService {
             logger.info("fetching user with id: {}", id);
             return List.of(mapToResponse(userEntity));
         }
-        if(email != null){
+        else if(email != null){
             UserEntity userEntity= userRepository.findByEmail(email)
                     .orElseThrow(()->{
                         return new UserNotFoundException("User not exist for email: "+email);
                     });
             logger.info("fetching user with email: {}", email);
             return List.of(mapToResponse(userEntity));
+        }else {
+            logger.warn("Provide valid search parameter for fetching user");
+            throw new InvalidSearchParameterException("Provide valid search parameter");
         }
-        logger.warn("Provide valid search parameter for fetching user");
-        throw new InvalidSearchParameterException("Provide valid search parameter");
     }
 
     @Override

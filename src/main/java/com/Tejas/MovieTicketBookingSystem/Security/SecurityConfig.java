@@ -31,7 +31,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity){
         return httpSecurity.csrf(csrf->csrf.disable())
                 .authorizeHttpRequests(auth->
-                        auth.requestMatchers("/user/login","/user/register")
+                        auth.requestMatchers("/user/login","/user/register","/theater/search","/movies","/movie/search")
                                 .permitAll()
                                 .anyRequest().authenticated()
                 )
